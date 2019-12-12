@@ -1,4 +1,6 @@
 from flask import Flask, escape, request, render_template
+from bs4 import BeautifulSoup
+import requests
 
 app = Flask(__name__)
 
@@ -26,6 +28,20 @@ def naver():
 @app.route('/google')
 def google():
     return render_template('google.html')
+
+
+@app.route('/summoner')
+def summoner():
+    return render_template('summoner.html')
+
+@app.route('/opgg')
+def opgg():
+    username=request.args.get('username')
+    opgg_url=f"https://www.op.gg/summoner/userName={username}"
+    res=requests.get(opgg_url).text
+    soup=BeautifulSoup(res,'html.parser')
+    tierrank=soup.find('div',{'class':'TierRank'}).text
+    return render_template('opgg.html',username=username,tierrank=tierrank)
 
 if __name__ == '__main__':
     app.run(debug=True)
